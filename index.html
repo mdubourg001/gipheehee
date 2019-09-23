@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Gipheehee</title>
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Lato&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./global.css" />
+    <link rel="stylesheet" href="./index.css" />
+
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <script type="text/javascript" src="./global.js"></script>
+    <script type="text/javascript" src="./index.js"></script>
+  </head>
+  <body>
+    <header class="w-full flex flex-column items-center">
+      <h1 id="title">Gipheehee</h1>
+
+      <div id="searchbar-wrapper" class="flex justify-between items-center">
+        <i data-feather="search"></i>
+        <input id="searchbar-input" class="w-full" type="text" />
+        <i id="searchbar-cross" class="hidden" data-feather="x"></i>
+      </div>
+    </header>
+
+    <script>
+      // replace all the tags with 'data-feather' by corresponding svg
+      feather.replace();
+    </script>
+  </body>
+</html>
