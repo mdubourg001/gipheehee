@@ -1,0 +1,22 @@
+{
+  "name": "gipheehee",
+  "version": "1.0.0",
+  "description": "Search GIFs from Giphy API",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdubourg001/gipheehee.git"
+  },
+  "author": "Maxime Dubourg",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mdubourg001/gipheehee/issues"
+  },
+  "homepage": "https://github.com/mdubourg001/gipheehee#readme",
+  "devDependencies": {
+    "parcel-bundler": "1.12.3"
+  }
+}

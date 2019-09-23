@@ -25,14 +25,30 @@
   </head>
   <body>
     <header class="w-full flex flex-column items-center">
-      <h1 id="title">Gipheehee</h1>
-
+      <div class="flex items-center">
+        <img
+          id="title-img"
+          src="./assets/heehee.png"
+          alt="heehee"
+          height="100"
+        />
+        <h1 id="title">Gipheehee</h1>
+      </div>
       <div id="searchbar-wrapper" class="flex justify-between items-center">
         <i data-feather="search"></i>
-        <input id="searchbar-input" class="w-full" type="text" />
+        <input
+          id="searchbar-input"
+          class="w-full"
+          type="text"
+          placeholder="Search a GIF..."
+        />
         <i id="searchbar-cross" class="hidden" data-feather="x"></i>
       </div>
     </header>
+
+    <div id="no-gifs-wrapper"></div>
+
+    <div id="gifs-wrapper"></div>
 
     <script>
       // replace all the tags with 'data-feather' by corresponding svg

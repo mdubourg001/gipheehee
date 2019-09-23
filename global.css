@@ -37,10 +37,23 @@ body {
 
 /* ======= TITLE ======= */
 
+#title-img {
+  transition: 0.3s ease;
+}
+
+#title-img:hover {
+  -moz-transform: scaleX(-1);
+  -o-transform: scaleX(-1);
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
 #title {
   font-family: "Pacifico", cursive;
   color: orange;
   margin-bottom: 50px;
+  text-decoration: underline;
+  margin-left: 20px;
 }
 
 /* ======= HEADER ======= */
@@ -51,10 +64,10 @@ header {
 
 #searchbar-wrapper {
   padding: 5px 3px;
-  border-radius: 5px;
+  border-radius: 2px;
   background-color: white;
-  width: 33, 3%;
-  max-width: 33, 3%;
+  width: 33.3%;
+  max-width: 33.3%;
 }
 
 #searchbar-wrapper svg {
@@ -63,6 +76,8 @@ header {
 }
 
 #searchbar-wrapper #searchbar-input {
+  font-family: "Lato", sans-serif;
+  font-weight: bold;
   border: none;
   padding: 5px 3px;
   font-size: 15px;
