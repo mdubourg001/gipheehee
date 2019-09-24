@@ -25,3 +25,13 @@ export class Debouncer {
     }, this.delay);
   }
 }
+
+export const updateHref = qValue => {
+  const newHref = new URL(window.location.href);
+
+  // https://stackoverflow.com/questions/486896/adding-a-parameter-to-the-url-with-javascript
+  if (qValue) newHref.searchParams.set("q", qValue);
+  else newHref.searchParams.delete("q");
+
+  window.history.replaceState({}, null, newHref.href);
+};

@@ -4,7 +4,8 @@ import {
   SEARCHBAR_DEBOUNCE_DELAY,
   NO_GIFS_NO_RESULTS_MESSAGE,
   NO_GIFS_SEARCHBAR_EMPTY_MESSAGE,
-  Debouncer
+  Debouncer,
+  updateHref
 } from "./utils";
 
 /* ======== UTILS ======= */
@@ -120,18 +121,25 @@ const handleSearchbarInput = (
     showNoGifsWrapper(noGifsWrapperHTMLElement);
   }
   // TODO IMPLEMENT HREF UPDATE
+
+  updateHref(event.target.value);
 };
 
 const handleSearchbarCrossClick = (
   _,
   searchbarCrossHTMLElement,
   searchbarInputHTMLElement,
-  gifsWrapperHTMLElement
+  gifsWrapperHTMLElement,
+  noGifsWrapperHTMLElement
 ) => {
   searchbarInputHTMLElement.value = "";
   hideSearchbarCross(searchbarCrossHTMLElement);
   emptyGifsWrapper(gifsWrapperHTMLElement);
   hideGifsWrapper(gifsWrapperHTMLElement);
+  noGifsWrapperHTMLElement.querySelector(
+    "#no-gifs-message"
+  ).innerText = NO_GIFS_SEARCHBAR_EMPTY_MESSAGE;
+  showNoGifsWrapper(noGifsWrapperHTMLElement);
 };
 
 window.onload = () => {
@@ -162,7 +170,8 @@ window.onload = () => {
       event,
       searchbarCross,
       searchbarInput,
-      gifsWrapper
+      gifsWrapper,
+      noGifsWrapper
     )
   );
 };
