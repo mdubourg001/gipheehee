@@ -35,3 +35,7 @@ const updateHref = qValue => {
 
   window.history.replaceState({}, null, newHref.href);
 };
+
+// returns a URLSearchParams object
+// (https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)
+const getHrefParams = () => new URL(window.location.href).searchParams;

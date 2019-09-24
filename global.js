@@ -130,6 +130,7 @@ const handleSearchbarCrossClick = (
     "#no-gifs-message"
   ).innerText = NO_GIFS_SEARCHBAR_EMPTY_MESSAGE;
   showNoGifsWrapper(noGifsWrapperHTMLElement);
+  updateHref("");
 };
 
 window.onload = () => {
@@ -164,4 +165,12 @@ window.onload = () => {
       noGifsWrapper
     )
   );
+
+  /* ======== HANDLING INITIAL Q PARAM ======== */
+
+  const initialQParam = getHrefParams().get("q");
+  if (initialQParam !== null) {
+    searchbarInput.value = initialQParam;
+    searchbarInput.dispatchEvent(new Event("input"));
+  }
 };
