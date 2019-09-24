@@ -39,6 +39,8 @@ const showNoGifsWrapper = noGifsWrapper => {
 
 /* ======== GLOBALS ======= */
 
+const favoriteGifs = localStorage.getItem(LOCAL_STORAGE_FAVORITES_KEY);
+
 // usefull not to fetch Giphy API on each keystoke
 const searchbarDebounce = new Debouncer(
   (event, gifsWrapper, noGifsWrapper, searchbarMGlass, searchbarLoader) => {
@@ -53,13 +55,8 @@ const searchbarDebounce = new Debouncer(
             emptyGifsWrapper(gifsWrapper);
             document.getElementById("gifs-count").innerText = data.length;
 
-            let newGif = null;
             for (let row of data) {
-              newGif = document.createElement("img");
-              newGif.src = row.images.fixed_width.url;
-              newGif.alt = row.title;
-              newGif.className = "gif";
-              gifsWrapper.appendChild(newGif);
+              addGifToDivFromGiphyRow(gifsWrapper, row);
             }
           } else {
             hideGifsWrapper(gifsWrapper);
@@ -110,9 +107,8 @@ const handleSearchbarInput = (
     ).innerText = NO_GIFS_SEARCHBAR_EMPTY_MESSAGE;
     showNoGifsWrapper(noGifsWrapperHTMLElement);
   }
-  // TODO IMPLEMENT HREF UPDATE
 
-  updateHref(event.target.value);
+  updateHrefQValue(event.target.value);
 };
 
 const handleSearchbarCrossClick = (
@@ -130,10 +126,31 @@ const handleSearchbarCrossClick = (
     "#no-gifs-message"
   ).innerText = NO_GIFS_SEARCHBAR_EMPTY_MESSAGE;
   showNoGifsWrapper(noGifsWrapperHTMLElement);
-  updateHref("");
+  updateHrefQValue("");
 };
 
+/* ======== ROUTING ======= */
+
+const displayHome = (homeNavItem, favoritedNavItem) => {
+  setHrefToHome();
+  homeNavItem.classList.add("active");
+  favoritedNavItem.classList && favoritedNavItem.classList.remove("active");
+};
+
+const displayFavorited = (homeNavItem, favoritedNavItem) => {
+  setHrefToFavorited();
+  homeNavItem.classList && homeNavItem.classList.remove("active");
+  favoritedNavItem.classList.add("active");
+
+  console.log(favoriteGifs);
+};
+
+/* ======== ON PAGE LOADED ======= */
+
 window.onload = () => {
+  const homeNavItem = document.getElementById("home-nav-item");
+  const favoritedNavItem = document.getElementById("favorited-nav-item");
+
   const searchbarMGlass = document.getElementById("searchbar-mglass");
   const searchbarLoader = document.getElementById("searchbar-loader");
   const searchbarInput = document.getElementById("searchbar-input");
@@ -141,6 +158,16 @@ window.onload = () => {
 
   const gifsWrapper = document.getElementById("gifs-wrapper");
   const noGifsWrapper = document.getElementById("no-gifs-wrapper");
+
+  /* ======== NAVBAR ELISTENERS ======= */
+
+  homeNavItem.addEventListener("click", event =>
+    displayHome(homeNavItem, favoritedNavItem, favoriteGifs)
+  );
+
+  favoritedNavItem.addEventListener("click", event =>
+    displayFavorited(homeNavItem, favoritedNavItem, favoriteGifs)
+  );
 
   /* ======== SEARCHBAR ELISTENERS ======= */
 
@@ -173,4 +200,7 @@ window.onload = () => {
     searchbarInput.value = initialQParam;
     searchbarInput.dispatchEvent(new Event("input"));
   }
+
+  // display home by default
+  displayHome(homeNavItem, favoritedNavItem);
 };

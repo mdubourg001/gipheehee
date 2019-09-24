@@ -66,6 +66,10 @@ body {
   flex-flow: wrap;
 }
 
+.justify-start {
+  justify-content: start;
+}
+
 .justify-between {
   justify-content: space-between;
 }
@@ -97,6 +101,27 @@ body {
   margin-bottom: 50px;
   text-decoration: underline;
   margin-left: 20px;
+}
+
+/* ======= NAVBAR ======= */
+
+nav .nav-item {
+  padding: 3px 10px 8px 10px;
+  cursor: pointer;
+}
+
+nav .nav-item span {
+  color: gray;
+  font-weight: normal;
+}
+
+nav .nav-item.active {
+  border-bottom: 3px solid orange;
+}
+
+nav .nav-item.active span {
+  color: black;
+  font-weight: bolder;
 }
 
 /* ======= HEADER ======= */
