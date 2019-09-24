@@ -1,13 +1,43 @@
 body {
   min-height: 100%;
-  background-color: darkslategrey;
+  background-color: #dce4e7;
   font-family: "Lato", sans-serif;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ======= UTILS ======= */
 
 .hidden {
   display: none;
+}
+
+.container {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
 }
 
 .w-full {
@@ -27,8 +57,16 @@ body {
   flex-direction: column;
 }
 
+.flex-wrap {
+  flex-flow: wrap;
+}
+
 .justify-between {
   justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
 }
 
 .items-center {
@@ -41,7 +79,7 @@ body {
   transition: 0.3s ease;
 }
 
-#title-img:hover {
+#title-wrapper:hover #title-img {
   -moz-transform: scaleX(-1);
   -o-transform: scaleX(-1);
   -webkit-transform: scaleX(-1);
@@ -60,6 +98,7 @@ body {
 
 header {
   padding: 10px 3px;
+  margin-bottom: 20px;
 }
 
 #searchbar-wrapper {
@@ -77,7 +116,6 @@ header {
 
 #searchbar-wrapper #searchbar-input {
   font-family: "Lato", sans-serif;
-  font-weight: bold;
   border: none;
   padding: 5px 3px;
   font-size: 15px;
@@ -85,4 +123,21 @@ header {
 
 #searchbar-wrapper #searchbar-input:focus {
   outline: none;
+}
+
+/* ======= NO-GIFS-WRAPPER ======= */
+
+/* ======= GIFS-WRAPPER ======= */
+
+#gifs-wrapper {
+  padding: 10px 0;
+  border: 1px solid whitesmoke;
+  border-radius: 3px;
+  background-color: white;
+}
+
+#gifs-wrapper > img {
+  border: 1px solid black;
+  border-radius: 3px;
+  margin: 3px 3px;
 }
