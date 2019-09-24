@@ -34,7 +34,8 @@
         <h1 id="title">Gipheehee</h1>
       </div>
       <div id="searchbar-wrapper" class="flex justify-between items-center">
-        <i data-feather="search"></i>
+        <i id="searchbar-mglass" data-feather="search"></i>
+        <i id="searchbar-loader" data-feather="loader" class="hidden"></i>
         <input
           id="searchbar-input"
           class="w-full"
@@ -45,12 +46,18 @@
       </div>
     </header>
 
-    <div id="no-gifs-wrapper"></div>
+    <div id="no-gifs-wrapper" class="w-full flex justify-center">
+      <h3 id="no-gifs-message" class="italic"></h3>
+    </div>
 
     <div
       id="gifs-wrapper"
-      class="w-full flex items-center justify-center flex-wrap"
-    ></div>
+      class="w-full hidden items-center justify-center flex-wrap"
+    >
+      <small id="gifs-count-wrapper" class="italic"
+        ><span id="gifs-count"></span> GIFs displayed</small
+      >
+    </div>
 
     <script>
       // replace all the tags with 'data-feather' by corresponding svg

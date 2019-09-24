@@ -5,60 +5,125 @@ import {
   Debouncer
 } from "./utils";
 
+/* ======== UTILS ======= */
+
+const hideSearchbarLoader = (searchbarMGlass, searchbarLoader) => {
+  searchbarMGlass.classList.remove("hidden");
+  searchbarLoader.classList.add("hidden");
+};
+const showSearchbarLoader = (searchbarMGlass, searchbarLoader) => {
+  searchbarMGlass.classList.add("hidden");
+  searchbarLoader.classList.remove("hidden");
+};
+const hideSearchbarCross = searchbarCross => {
+  searchbarCross.classList.add("hidden");
+};
+const showSearchbarCross = searchbarCross => {
+  searchbarCross.classList.remove("hidden");
+};
+
+const hideGifsWrapper = gifsWrapper => {
+  gifsWrapper.classList.remove("flex");
+  gifsWrapper.classList.add("hidden");
+};
+const showGifsWrapper = gifsWrapper => {
+  gifsWrapper.classList.remove("hidden");
+  gifsWrapper.classList.add("flex");
+};
+const emptyGifsWrapper = gifsWrapper => {
+  const gifs = document.getElementsByClassName("gif");
+  while (gifs[0]) gifsWrapper.removeChild(gifs[0]);
+};
+
+const hideNoGifsWrapper = noGifsWrapper => {
+  noGifsWrapper.classList.remove("flex");
+  noGifsWrapper.classList.add("hidden");
+};
+const showNoGifsWrapper = noGifsWrapper => {
+  noGifsWrapper.classList.remove("hidden");
+  noGifsWrapper.classList.add("flex");
+};
+
 /* ======== GLOBALS ======= */
 
 // usefull not to fetch Giphy API on each keystoke
-const searchbarDebounce = new Debouncer((event, gifsWrapper) => {
-  fetch(
-    `${GIPHY_SEARCH_API_ENDPOINT}?api_key=${GIPHY_DEV_API_KEY}&q=${event.target.value}`
-  ).then(response => {
-    while (gifsWrapper.firstChild)
-      gifsWrapper.removeChild(gifsWrapper.firstChild);
+const searchbarDebounce = new Debouncer(
+  (event, gifsWrapper, searchbarMGlass, searchbarLoader) => {
+    fetch(
+      `${GIPHY_SEARCH_API_ENDPOINT}?api_key=${GIPHY_DEV_API_KEY}&q=${event.target.value}`
+    ).then(response => {
+      if (response.ok) {
+        response.json().then(({ data }) => {
+          if (data.length > 0) {
+            showGifsWrapper(gifsWrapper);
+            emptyGifsWrapper(gifsWrapper);
+            document.getElementById("gifs-count").innerText = data.length;
 
-    if (response.ok) {
-      response.json().then(({ data }) => {
-        let newGif = null;
-        for (let row of data) {
-          newGif = document.createElement("img");
-          newGif.src = row.images.fixed_width.url;
-          newGif.alt = row.title;
-          newGif.className = "gif";
-          gifsWrapper.appendChild(newGif);
-        }
-      });
-    } else {
-      // TODO HANDLE GIPHY ERRORS
-    }
-  });
-}, SEARCHBAR_DEBOUNCE_DELAY);
+            let newGif = null;
+            for (let row of data) {
+              newGif = document.createElement("img");
+              newGif.src = row.images.fixed_width.url;
+              newGif.alt = row.title;
+              newGif.className = "gif";
+              gifsWrapper.appendChild(newGif);
+            }
+
+            hideSearchbarLoader(searchbarMGlass, searchbarLoader);
+          } else {
+            hideGifsWrapper(gifsWrapper);
+          }
+        });
+      } else {
+        // TODO HANDLE GIPHY ERRORS
+      }
+    });
+  },
+  SEARCHBAR_DEBOUNCE_DELAY
+);
 
 /* ======== EVENT HANDLERS ======= */
 
 const handleSearchbarInput = (
   event,
+  searchbarMGlassHTMLElement,
+  searchbarLoaderHTMLElement,
   searchbarCrossHTMLElement,
   gifsWrapperHTMLElement
 ) => {
-  if (event.target.value.length === 0)
-    searchbarCrossHTMLElement.classList.add("hidden");
-  else searchbarCrossHTMLElement.classList.remove("hidden");
+  if (event.target.value.length > 0) {
+    showSearchbarCross(searchbarCrossHTMLElement);
+    showSearchbarLoader(searchbarMGlassHTMLElement, searchbarLoaderHTMLElement);
 
-  if (event.target.value.length > 0)
-    searchbarDebounce.call(event, gifsWrapperHTMLElement);
-  // clears displayed GIFs
-  else
-    while (gifsWrapperHTMLElement.firstChild)
-      gifsWrapperHTMLElement.removeChild(gifsWrapperHTMLElement.firstChild);
-
+    searchbarDebounce.call(
+      event,
+      gifsWrapperHTMLElement,
+      searchbarMGlassHTMLElement,
+      searchbarLoaderHTMLElement
+    );
+  } else {
+    hideSearchbarCross(searchbarCrossHTMLElement);
+    hideSearchbarLoader(searchbarMGlassHTMLElement, searchbarLoaderHTMLElement);
+    emptyGifsWrapper(gifsWrapperHTMLElement);
+    hideGifsWrapper(gifsWrapperHTMLElement);
+  }
   // TODO IMPLEMENT HREF UPDATE
 };
 
-const handleSearchbarCrossClick = (event, searchbarInputHTMLElement) => {
+const handleSearchbarCrossClick = (
+  _,
+  searchbarCrossHTMLElement,
+  searchbarInputHTMLElement,
+  gifsWrapperHTMLElement
+) => {
   searchbarInputHTMLElement.value = "";
-  event.target.classList.add("hidden");
+  hideSearchbarCross(searchbarCrossHTMLElement);
+  emptyGifsWrapper(gifsWrapperHTMLElement);
+  hideGifsWrapper(gifsWrapperHTMLElement);
 };
 
 window.onload = () => {
+  const searchbarMGlass = document.getElementById("searchbar-mglass");
+  const searchbarLoader = document.getElementById("searchbar-loader");
   const searchbarInput = document.getElementById("searchbar-input");
   const searchbarCross = document.getElementById("searchbar-cross");
 
@@ -68,10 +133,21 @@ window.onload = () => {
 
   // loads GIFs, updates browser href and manage cross icon display
   searchbarInput.addEventListener("input", event =>
-    handleSearchbarInput(event, searchbarCross, gifsWrapper)
+    handleSearchbarInput(
+      event,
+      searchbarMGlass,
+      searchbarLoader,
+      searchbarCross,
+      gifsWrapper
+    )
   );
 
   searchbarCross.addEventListener("click", event =>
-    handleSearchbarCrossClick(event, searchbarInput)
+    handleSearchbarCrossClick(
+      event,
+      searchbarCross,
+      searchbarInput,
+      gifsWrapper
+    )
   );
 };

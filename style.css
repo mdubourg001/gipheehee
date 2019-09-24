@@ -48,6 +48,10 @@ body {
   height: 100%;
 }
 
+.italic {
+  font-style: italic;
+}
+
 .flex {
   display: flex;
   flex-direction: row;
@@ -114,6 +118,27 @@ header {
   margin: 0 6px;
 }
 
+@keyframes rotation {
+  0% {
+    -moz-transform: rotate(0);
+    -o-transform: rotate(0);
+    -webkit-transform: rotate(0);
+    transform: rotate(0);
+  }
+  100% {
+    -moz-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+#searchbar-wrapper #searchbar-loader {
+  animation-name: rotation;
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+}
+
 #searchbar-wrapper #searchbar-input {
   font-family: "Lato", sans-serif;
   border: none;
@@ -127,6 +152,11 @@ header {
 
 /* ======= NO-GIFS-WRAPPER ======= */
 
+#no-gifs-wrapper {
+  color: darkgray;
+  padding: 10vh 10px;
+}
+
 /* ======= GIFS-WRAPPER ======= */
 
 #gifs-wrapper {
@@ -134,6 +164,13 @@ header {
   border: 1px solid whitesmoke;
   border-radius: 3px;
   background-color: white;
+}
+
+#gifs-count-wrapper {
+  width: 100%;
+  padding: 0 20px;
+  margin-bottom: 5px;
+  color: gray;
 }
 
 #gifs-wrapper > img {
