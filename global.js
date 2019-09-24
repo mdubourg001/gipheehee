@@ -1,13 +1,3 @@
-import {
-  GIPHY_SEARCH_API_ENDPOINT,
-  GIPHY_DEV_API_KEY,
-  SEARCHBAR_DEBOUNCE_DELAY,
-  NO_GIFS_NO_RESULTS_MESSAGE,
-  NO_GIFS_SEARCHBAR_EMPTY_MESSAGE,
-  Debouncer,
-  updateHref
-} from "./utils";
-
 /* ======== UTILS ======= */
 
 const hideSearchbarLoader = (searchbarMGlass, searchbarLoader) => {
