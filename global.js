@@ -2,6 +2,8 @@ import {
   GIPHY_SEARCH_API_ENDPOINT,
   GIPHY_DEV_API_KEY,
   SEARCHBAR_DEBOUNCE_DELAY,
+  NO_GIFS_NO_RESULTS_MESSAGE,
+  NO_GIFS_SEARCHBAR_EMPTY_MESSAGE,
   Debouncer
 } from "./utils";
 
@@ -48,13 +50,14 @@ const showNoGifsWrapper = noGifsWrapper => {
 
 // usefull not to fetch Giphy API on each keystoke
 const searchbarDebounce = new Debouncer(
-  (event, gifsWrapper, searchbarMGlass, searchbarLoader) => {
+  (event, gifsWrapper, noGifsWrapper, searchbarMGlass, searchbarLoader) => {
     fetch(
       `${GIPHY_SEARCH_API_ENDPOINT}?api_key=${GIPHY_DEV_API_KEY}&q=${event.target.value}`
     ).then(response => {
       if (response.ok) {
         response.json().then(({ data }) => {
           if (data.length > 0) {
+            hideNoGifsWrapper(noGifsWrapper);
             showGifsWrapper(gifsWrapper);
             emptyGifsWrapper(gifsWrapper);
             document.getElementById("gifs-count").innerText = data.length;
@@ -67,11 +70,15 @@ const searchbarDebounce = new Debouncer(
               newGif.className = "gif";
               gifsWrapper.appendChild(newGif);
             }
-
-            hideSearchbarLoader(searchbarMGlass, searchbarLoader);
           } else {
             hideGifsWrapper(gifsWrapper);
+            noGifsWrapper.querySelector(
+              "#no-gifs-message"
+            ).innerText = `${NO_GIFS_NO_RESULTS_MESSAGE} \"${event.target.value}\".`;
+            showNoGifsWrapper(noGifsWrapper);
           }
+
+          hideSearchbarLoader(searchbarMGlass, searchbarLoader);
         });
       } else {
         // TODO HANDLE GIPHY ERRORS
@@ -88,7 +95,8 @@ const handleSearchbarInput = (
   searchbarMGlassHTMLElement,
   searchbarLoaderHTMLElement,
   searchbarCrossHTMLElement,
-  gifsWrapperHTMLElement
+  gifsWrapperHTMLElement,
+  noGifsWrapperHTMLElement
 ) => {
   if (event.target.value.length > 0) {
     showSearchbarCross(searchbarCrossHTMLElement);
@@ -97,6 +105,7 @@ const handleSearchbarInput = (
     searchbarDebounce.call(
       event,
       gifsWrapperHTMLElement,
+      noGifsWrapperHTMLElement,
       searchbarMGlassHTMLElement,
       searchbarLoaderHTMLElement
     );
@@ -105,6 +114,10 @@ const handleSearchbarInput = (
     hideSearchbarLoader(searchbarMGlassHTMLElement, searchbarLoaderHTMLElement);
     emptyGifsWrapper(gifsWrapperHTMLElement);
     hideGifsWrapper(gifsWrapperHTMLElement);
+    noGifsWrapperHTMLElement.querySelector(
+      "#no-gifs-message"
+    ).innerText = NO_GIFS_SEARCHBAR_EMPTY_MESSAGE;
+    showNoGifsWrapper(noGifsWrapperHTMLElement);
   }
   // TODO IMPLEMENT HREF UPDATE
 };
@@ -128,6 +141,7 @@ window.onload = () => {
   const searchbarCross = document.getElementById("searchbar-cross");
 
   const gifsWrapper = document.getElementById("gifs-wrapper");
+  const noGifsWrapper = document.getElementById("no-gifs-wrapper");
 
   /* ======== SEARCHBAR ELISTENERS ======= */
 
@@ -138,7 +152,8 @@ window.onload = () => {
       searchbarMGlass,
       searchbarLoader,
       searchbarCross,
-      gifsWrapper
+      gifsWrapper,
+      noGifsWrapper
     )
   );
 
