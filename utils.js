@@ -223,9 +223,15 @@ const bindEventListenersToGifButtons = (
   alertManager
 ) => {
   for (let gif of gifsWrapper.getElementsByClassName("gif")) {
-    gif
-      .querySelector(".gif-share-button")
-      .addEventListener("click", _ => console.log("Not implemented."));
+    gif.querySelector(".gif-share-button").addEventListener("click", _ => {
+      // might not work on some browsers (IE, Edge), did not found any polyfills 🤷
+      // https://caniuse.com/#feat=mdn-api_clipboard
+      navigator.clipboard.writeText(gif.querySelector("img").src).then(() => {
+        alertManager.push(
+          new Alert("📃 &nbsp; GIF URL copied to clipboard!", AlertType.INFO)
+        );
+      });
+    });
 
     gif.querySelector(".gif-fav-button").addEventListener("click", event => {
       if (favoriteManager.isFavorite(gif.id)) {
