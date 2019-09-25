@@ -1,4 +1,4 @@
-/* ======== CONSTANTS ======= */
+/* ======== CONSTANTS & GLOBALS ======= */
 
 const GIPHY_SEARCH_API_ENDPOINT = "https://api.giphy.com/v1/gifs/search";
 const GIPHY_DEV_API_KEY = "hYs1n6z0WOkt24K6w7ttx18gnRLh8Gks";
@@ -12,6 +12,9 @@ const NO_GIFS_FAVORITES = "🤷 You marked no GIFs as favorites yet.";
 
 const LOCAL_STORAGE_FAVORITES_KEY = "FAVORITE_GIFS";
 
+let ALERTS_COUNT = 0;
+const ALERTS_TIMEOUT_DELAY = 5000;
+
 /* ======== UTILS ======= */
 
 // class used only to normalize the format of GIFs stored into localStorage
@@ -19,6 +22,73 @@ class Gif {
   constructor(id, url) {
     this.id = id;
     this.url = url;
+  }
+}
+
+const AlertType = {
+  INFO: "info",
+  ERROR: "error"
+};
+
+class Alert {
+  constructor(title, type) {
+    this.id = ALERTS_COUNT++;
+    this.title = title;
+    this.type = type;
+  }
+}
+
+class AlertManager {
+  constructor(alertsWrapper) {
+    this.alertsWrapper = alertsWrapper;
+    this._alerts = [];
+  }
+
+  _getHTMLElementFromAlertObject(alertObject) {
+    const newAlert = document.createElement("div");
+    newAlert.className = `alert alert-${alertObject.type} flex`;
+    const alertTitle = document.createElement("span");
+    alertTitle.innerHTML = alertObject.title;
+
+    newAlert.appendChild(alertTitle);
+    newAlert.addEventListener("click", () => this.remove(alertObject.id));
+    return newAlert;
+  }
+
+  _emptyAlertsWrapper() {
+    const alerts = this.alertsWrapper.getElementsByClassName("alert");
+    while (alerts[0]) this.alertsWrapper.removeChild(alerts[0]);
+  }
+
+  _displayAlertsWrapper() {
+    for (let alert of this.getAlerts()) {
+      this.alertsWrapper.appendChild(
+        this._getHTMLElementFromAlertObject(alert)
+      );
+    }
+  }
+
+  _refreshAlertsWrapper() {
+    this._emptyAlertsWrapper();
+    this._displayAlertsWrapper();
+  }
+
+  getAlerts() {
+    return this._alerts;
+  }
+
+  push(alertObject) {
+    this._alerts.push(alertObject);
+    this._refreshAlertsWrapper();
+
+    setTimeout(() => {
+      this.remove(alertObject.id);
+    }, ALERTS_TIMEOUT_DELAY);
+  }
+
+  remove(alertId) {
+    this._alerts = this._alerts.filter(a => a.id !== alertId);
+    this._refreshAlertsWrapper();
   }
 }
 
@@ -147,7 +217,11 @@ const addGifToDivFromGiphyRow = (gifsWrapper, gifObject, favoriteManager) => {
   gifsWrapper.appendChild(newGifWrapper);
 };
 
-const bindEventListenersToGifButtons = (gifsWrapper, favoriteManager) => {
+const bindEventListenersToGifButtons = (
+  gifsWrapper,
+  favoriteManager,
+  alertManager
+) => {
   for (let gif of gifsWrapper.getElementsByClassName("gif")) {
     gif
       .querySelector(".gif-share-button")
@@ -157,9 +231,15 @@ const bindEventListenersToGifButtons = (gifsWrapper, favoriteManager) => {
       if (favoriteManager.isFavorite(gif.id)) {
         favoriteManager.remove(gif.id);
         event.target.closest("svg").classList.remove("fav");
+        alertManager.push(
+          new Alert("😞 &nbsp; GIF removed from favorites.", AlertType.INFO)
+        );
       } else {
         favoriteManager.add(new Gif(gif.id, gif.querySelector("img").src));
         event.target.closest("svg").classList.add("fav");
+        alertManager.push(
+          new Alert("🎉 &nbsp; GIF added to favorites!", AlertType.INFO)
+        );
       }
     });
   }

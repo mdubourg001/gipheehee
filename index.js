@@ -41,6 +41,8 @@ const showNoGifsWrapper = noGifsWrapper => {
 
 const favoriteManager = new FavoriteManager();
 
+let alertManager = null;
+
 // usefull not to fetch Giphy API on each keystoke
 const searchbarDebounce = new Debouncer(
   (event, gifsWrapper, noGifsWrapper, searchbarMGlass, searchbarLoader) => {
@@ -71,7 +73,11 @@ const searchbarDebounce = new Debouncer(
             /* forced to bind buttons eventListeners here and not during gifs insertion
              because feather.replace() doesn't keeps attached eventListeners during <i /> 
              tags replacement. */
-            bindEventListenersToGifButtons(gifsWrapper, favoriteManager);
+            bindEventListenersToGifButtons(
+              gifsWrapper,
+              favoriteManager,
+              alertManager
+            );
           } else {
             hideGifsWrapper(gifsWrapper);
             noGifsWrapper.querySelector(
@@ -153,8 +159,7 @@ const displayHome = (
   favoritedNavItem,
   searchbarInput,
   gifsWrapper,
-  noGifsWrapper,
-  favoriteManager
+  noGifsWrapper
 ) => {
   setHrefToHome();
   homeNavItem.classList.add("active");
@@ -201,7 +206,7 @@ const displayFavorited = (
     /* forced to bind buttons eventListeners here and not during gifs insertion
      because feather.replace() doesn't keeps attached eventListeners during <i /> 
      tags replacement. */
-    bindEventListenersToGifButtons(gifsWrapper, favoriteManager);
+    bindEventListenersToGifButtons(gifsWrapper, favoriteManager, alertManager);
   } else {
     hideGifsWrapper(gifsWrapper);
     noGifsWrapper.querySelector(
@@ -217,6 +222,8 @@ window.onload = () => {
   const homeNavItem = document.getElementById("home-nav-item");
   const favoritedNavItem = document.getElementById("favorited-nav-item");
 
+  const alertsWrapper = document.getElementById("alerts-wrapper");
+
   const searchbarMGlass = document.getElementById("searchbar-mglass");
   const searchbarLoader = document.getElementById("searchbar-loader");
   const searchbarInput = document.getElementById("searchbar-input");
@@ -224,6 +231,32 @@ window.onload = () => {
 
   const gifsWrapper = document.getElementById("gifs-wrapper");
   const noGifsWrapper = document.getElementById("no-gifs-wrapper");
+
+  /* ======== INITIAL SETUP ======== */
+
+  alertManager = new AlertManager(alertsWrapper);
+
+  // display home by default
+  displayHome(
+    homeNavItem,
+    favoritedNavItem,
+    searchbarInput,
+    gifsWrapper,
+    noGifsWrapper
+  );
+
+  /* when on Favorited tab, allows us to automatically refresh
+     displayed GIFs when "un-favoriting" some GIF */
+  favoriteManager.afterRemoveHook = () => {
+    !isHrefHome() &&
+      displayFavorited(
+        homeNavItem,
+        favoritedNavItem,
+        gifsWrapper,
+        noGifsWrapper,
+        favoriteManager
+      );
+  };
 
   /* ======== NAVBAR ELISTENERS ======= */
 
@@ -290,28 +323,4 @@ window.onload = () => {
     searchbarInput.value = initialQParam;
     searchbarInput.dispatchEvent(new Event("input"));
   }
-
-  // display home by default
-  displayHome(
-    homeNavItem,
-    favoritedNavItem,
-    searchbarInput,
-    gifsWrapper,
-    noGifsWrapper,
-    favoriteManager
-  );
-
-  /* when on Favorited tab, allows us to automatically refresh
-     displayed GIFs when "un-favoriting" some GIF */
-  favoriteManager.afterRemoveHook = () => {
-    console.log("yow");
-    !isHrefHome() &&
-      displayFavorited(
-        homeNavItem,
-        favoritedNavItem,
-        gifsWrapper,
-        noGifsWrapper,
-        favoriteManager
-      );
-  };
 };

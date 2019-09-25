@@ -30,14 +30,18 @@
     <script type="text/javascript" src="./index.js"></script>
   </head>
   <body class="container">
-    <header class="w-full flex flex-column items-center">
-      <nav class="w-full flex justify-start items-center">
-        <div id="home-nav-item" class="nav-item">
-          <span href="#">Home</span>
+    <header class="w-full flex flex-col items-center">
+      <nav class="w-full flex justify-between">
+        <div class="flex justify-start items-center">
+          <div id="home-nav-item" class="nav-item">
+            <span href="#">Home</span>
+          </div>
+          <div id="favorited-nav-item" class="nav-item">
+            <span href="#">Favorited</span>
+          </div>
         </div>
-        <div id="favorited-nav-item" class="nav-item">
-          <span href="#">Favorited</span>
-        </div>
+
+        <section id="alerts-wrapper" class="flex flex-col items-end"></section>
       </nav>
 
       <div id="title-wrapper" class="flex items-center">
