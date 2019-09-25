@@ -55,8 +55,15 @@ const searchbarDebounce = new Debouncer(
             emptyGifsWrapper(gifsWrapper);
             document.getElementById("gifs-count").innerText = data.length;
 
-            for (let row of data) {
-              addGifToDivFromGiphyRow(gifsWrapper, row, favoriteManager);
+            for (let giphyGifObject of data) {
+              addGifToDivFromGiphyRow(
+                gifsWrapper,
+                new Gif(
+                  giphyGifObject.id,
+                  giphyGifObject.images.fixed_width.url
+                ),
+                favoriteManager
+              );
             }
             // replace all the tags with 'data-feather' by corresponding svg
             feather.replace();
@@ -64,31 +71,7 @@ const searchbarDebounce = new Debouncer(
             /* forced to bind buttons eventListeners here and not during gifs insertion
              because feather.replace() doesn't keeps attached eventListeners during <i /> 
              tags replacement. */
-            for (let gif of gifsWrapper.getElementsByClassName("gif")) {
-              gif
-                .querySelector(".gif-share-button")
-                .addEventListener("click", _ => () =>
-                  console.log("Not implemented.")
-                );
-
-              gif
-                .querySelector(".gif-fav-button")
-                .addEventListener("click", event => {
-                  // should be a better way to pass a usable "row" to favoriteManager.add
-                  if (favoriteManager.isFavorite(gif.id)) {
-                    favoriteManager.remove(gif.id);
-                    event.target.closest("svg").classList.remove("fav");
-                  } else {
-                    favoriteManager.add({
-                      id: gif.id,
-                      images: {
-                        fixed_width: { url: gif.querySelector("img").src }
-                      }
-                    });
-                    event.target.closest("svg").classList.add("fav");
-                  }
-                });
-            }
+            bindEventListenersToGifButtons(gifsWrapper, favoriteManager);
           } else {
             hideGifsWrapper(gifsWrapper);
             noGifsWrapper.querySelector(
@@ -151,27 +134,81 @@ const handleSearchbarCrossClick = (
 ) => {
   searchbarInputHTMLElement.value = "";
   hideSearchbarCross(searchbarCrossHTMLElement);
+  updateHrefQValue("");
+
+  if (!isHrefHome()) return;
+
   emptyGifsWrapper(gifsWrapperHTMLElement);
   hideGifsWrapper(gifsWrapperHTMLElement);
   noGifsWrapperHTMLElement.querySelector(
     "#no-gifs-message"
   ).innerText = NO_GIFS_SEARCHBAR_EMPTY_MESSAGE;
   showNoGifsWrapper(noGifsWrapperHTMLElement);
-  updateHrefQValue("");
 };
 
 /* ======== ROUTING ======= */
 
-const displayHome = (homeNavItem, favoritedNavItem) => {
+const displayHome = (
+  homeNavItem,
+  favoritedNavItem,
+  searchbarInput,
+  gifsWrapper,
+  noGifsWrapper,
+  favoriteManager
+) => {
   setHrefToHome();
   homeNavItem.classList.add("active");
   favoritedNavItem.classList && favoritedNavItem.classList.remove("active");
+
+  const initialQParam = getHrefParams().get("q");
+  if (initialQParam !== null) {
+    searchbarInput.dispatchEvent(new Event("input"));
+  } else {
+    hideGifsWrapper(gifsWrapper);
+    noGifsWrapper.querySelector(
+      "#no-gifs-message"
+    ).innerText = NO_GIFS_SEARCHBAR_EMPTY_MESSAGE;
+    showNoGifsWrapper(noGifsWrapper);
+  }
 };
 
-const displayFavorited = (homeNavItem, favoritedNavItem) => {
+const displayFavorited = (
+  homeNavItem,
+  favoritedNavItem,
+  gifsWrapper,
+  noGifsWrapper,
+  favoriteManager
+) => {
   setHrefToFavorited();
   homeNavItem.classList && homeNavItem.classList.remove("active");
   favoritedNavItem.classList.add("active");
+
+  const favorites = favoriteManager.getFavorites();
+
+  if (favorites.length > 0) {
+    hideNoGifsWrapper(noGifsWrapper);
+    showGifsWrapper(gifsWrapper);
+    emptyGifsWrapper(gifsWrapper);
+    document.getElementById("gifs-count").innerText = favorites.length;
+
+    for (let gifObject of favorites) {
+      addGifToDivFromGiphyRow(gifsWrapper, gifObject, favoriteManager);
+    }
+
+    // replace all the tags with 'data-feather' by corresponding svg
+    feather.replace();
+
+    /* forced to bind buttons eventListeners here and not during gifs insertion
+     because feather.replace() doesn't keeps attached eventListeners during <i /> 
+     tags replacement. */
+    bindEventListenersToGifButtons(gifsWrapper, favoriteManager);
+  } else {
+    hideGifsWrapper(gifsWrapper);
+    noGifsWrapper.querySelector(
+      "#no-gifs-message"
+    ).innerText = NO_GIFS_FAVORITES;
+    showNoGifsWrapper(noGifsWrapper);
+  }
 };
 
 /* ======== ON PAGE LOADED ======= */
@@ -191,17 +228,41 @@ window.onload = () => {
   /* ======== NAVBAR ELISTENERS ======= */
 
   homeNavItem.addEventListener("click", event =>
-    displayHome(homeNavItem, favoritedNavItem, favoriteGifs)
+    displayHome(
+      homeNavItem,
+      favoritedNavItem,
+      searchbarInput,
+      gifsWrapper,
+      noGifsWrapper,
+      favoriteManager
+    )
   );
 
   favoritedNavItem.addEventListener("click", event =>
-    displayFavorited(homeNavItem, favoritedNavItem, favoriteGifs)
+    displayFavorited(
+      homeNavItem,
+      favoritedNavItem,
+      gifsWrapper,
+      noGifsWrapper,
+      favoriteManager
+    )
   );
 
   /* ======== SEARCHBAR ELISTENERS ======= */
 
   // loads GIFs, updates browser href and manage cross icon display
-  searchbarInput.addEventListener("input", event =>
+  searchbarInput.addEventListener("input", event => {
+    if (!isHrefHome()) {
+      displayHome(
+        homeNavItem,
+        favoritedNavItem,
+        searchbarInput,
+        gifsWrapper,
+        noGifsWrapper,
+        favoriteManager
+      );
+    }
+
     handleSearchbarInput(
       event,
       searchbarMGlass,
@@ -209,8 +270,8 @@ window.onload = () => {
       searchbarCross,
       gifsWrapper,
       noGifsWrapper
-    )
-  );
+    );
+  });
 
   searchbarCross.addEventListener("click", event =>
     handleSearchbarCrossClick(
@@ -231,5 +292,26 @@ window.onload = () => {
   }
 
   // display home by default
-  displayHome(homeNavItem, favoritedNavItem);
+  displayHome(
+    homeNavItem,
+    favoritedNavItem,
+    searchbarInput,
+    gifsWrapper,
+    noGifsWrapper,
+    favoriteManager
+  );
+
+  /* when on Favorited tab, allows us to automatically refresh
+     displayed GIFs when "un-favoriting" some GIF */
+  favoriteManager.afterRemoveHook = () => {
+    console.log("yow");
+    !isHrefHome() &&
+      displayFavorited(
+        homeNavItem,
+        favoritedNavItem,
+        gifsWrapper,
+        noGifsWrapper,
+        favoriteManager
+      );
+  };
 };

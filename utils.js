@@ -14,6 +14,14 @@ const LOCAL_STORAGE_FAVORITES_KEY = "FAVORITE_GIFS";
 
 /* ======== UTILS ======= */
 
+// class used only to normalize the format of GIFs stored into localStorage
+class Gif {
+  constructor(id, url) {
+    this.id = id;
+    this.url = url;
+  }
+}
+
 class Debouncer {
   constructor(callback, delay) {
     this._timeout = null;
@@ -30,9 +38,11 @@ class Debouncer {
 }
 
 class FavoriteManager {
-  constructor() {
+  constructor(afterRemoveHook = () => {}) {
     const _lsFavorites = localStorage.getItem(LOCAL_STORAGE_FAVORITES_KEY);
     this._favorites = _lsFavorites !== null ? JSON.parse(_lsFavorites) : [];
+    // useful to refresh GIFs displayed when on Favorited tab
+    this.afterRemoveHook = afterRemoveHook;
   }
 
   getFavorites() {
@@ -43,10 +53,10 @@ class FavoriteManager {
     return this._favorites.some(f => f.id === giphyGifId);
   }
 
-  add(giphyRow) {
+  add(gifObject) {
     this._favorites.push({
-      id: giphyRow.id,
-      url: giphyRow.images.fixed_width.url
+      id: gifObject.id,
+      url: gifObject.url
     });
     localStorage.setItem(
       LOCAL_STORAGE_FAVORITES_KEY,
@@ -60,8 +70,14 @@ class FavoriteManager {
       LOCAL_STORAGE_FAVORITES_KEY,
       JSON.stringify(this._favorites)
     );
+    this.afterRemoveHook();
   }
 }
+
+const isHrefHome = () => {
+  const href = new URL(window.location.href);
+  return href.pathname === "/";
+};
 
 const setHrefToHome = () => {
   const newHref = new URL(window.location.href);
@@ -104,13 +120,13 @@ const updateHrefQValue = qValue => {
 // (https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)
 const getHrefParams = () => new URL(window.location.href).searchParams;
 
-const addGifToDivFromGiphyRow = (gifsWrapper, giphyRow, favoriteManager) => {
+const addGifToDivFromGiphyRow = (gifsWrapper, gifObject, favoriteManager) => {
   const newGifWrapper = document.createElement("div");
   newGifWrapper.className = "gif";
-  newGifWrapper.id = giphyRow.id;
+  newGifWrapper.id = gifObject.id;
   const newGif = document.createElement("img");
-  newGif.src = giphyRow.images.fixed_width.url;
-  newGif.alt = giphyRow.title;
+  newGif.src = gifObject.url;
+  newGif.alt = gifObject.title;
 
   const gifButtonsWrapper = document.createElement("div");
   gifButtonsWrapper.className =
@@ -120,7 +136,7 @@ const addGifToDivFromGiphyRow = (gifsWrapper, giphyRow, favoriteManager) => {
   shareButton.setAttribute("data-feather", "share-2");
   const favButton = document.createElement("i");
   favButton.className = `gif-fav-button ${
-    favoriteManager.isFavorite(giphyRow.id) ? "fav" : ""
+    favoriteManager.isFavorite(gifObject.id) ? "fav" : ""
   }`;
   favButton.setAttribute("data-feather", "heart");
 
@@ -129,4 +145,22 @@ const addGifToDivFromGiphyRow = (gifsWrapper, giphyRow, favoriteManager) => {
   newGifWrapper.appendChild(newGif);
   newGifWrapper.appendChild(gifButtonsWrapper);
   gifsWrapper.appendChild(newGifWrapper);
+};
+
+const bindEventListenersToGifButtons = (gifsWrapper, favoriteManager) => {
+  for (let gif of gifsWrapper.getElementsByClassName("gif")) {
+    gif
+      .querySelector(".gif-share-button")
+      .addEventListener("click", _ => console.log("Not implemented."));
+
+    gif.querySelector(".gif-fav-button").addEventListener("click", event => {
+      if (favoriteManager.isFavorite(gif.id)) {
+        favoriteManager.remove(gif.id);
+        event.target.closest("svg").classList.remove("fav");
+      } else {
+        favoriteManager.add(new Gif(gif.id, gif.querySelector("img").src));
+        event.target.closest("svg").classList.add("fav");
+      }
+    });
+  }
 };
