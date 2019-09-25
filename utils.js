@@ -35,22 +35,30 @@ class FavoriteManager {
     this._favorites = _lsFavorites !== null ? JSON.parse(_lsFavorites) : [];
   }
 
-  get() {
+  getFavorites() {
     return this._favorites;
   }
 
+  isFavorite(giphyGifId) {
+    return this._favorites.some(f => f.id === giphyGifId);
+  }
+
   add(giphyRow) {
-    this._favorites.push(giphyRow);
+    this._favorites.push({
+      id: giphyRow.id,
+      url: giphyRow.images.fixed_width.url
+    });
     localStorage.setItem(
       LOCAL_STORAGE_FAVORITES_KEY,
       JSON.stringify(this._favorites)
     );
   }
 
-  remove(giphyRow) {
+  remove(giphyGifId) {
+    this._favorites = this._favorites.filter(f => f.id !== giphyGifId);
     localStorage.setItem(
       LOCAL_STORAGE_FAVORITES_KEY,
-      JSON.stringify(this._favorites.filter(f => f.id !== giphyRow.id))
+      JSON.stringify(this._favorites)
     );
   }
 }
@@ -96,14 +104,29 @@ const updateHrefQValue = qValue => {
 // (https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)
 const getHrefParams = () => new URL(window.location.href).searchParams;
 
-const addGifToFavorited = row => {};
-
-const removeGifFromFavorited = row => {};
-
-const addGifToDivFromGiphyRow = (gifsWrapper, giphyRow) => {
+const addGifToDivFromGiphyRow = (gifsWrapper, giphyRow, favoriteManager) => {
+  const newGifWrapper = document.createElement("div");
+  newGifWrapper.className = "gif";
+  newGifWrapper.id = giphyRow.id;
   const newGif = document.createElement("img");
   newGif.src = giphyRow.images.fixed_width.url;
   newGif.alt = giphyRow.title;
-  newGif.className = "gif";
-  gifsWrapper.appendChild(newGif);
+
+  const gifButtonsWrapper = document.createElement("div");
+  gifButtonsWrapper.className =
+    "gif-buttons-wrapper flex items-center justify-between";
+  const shareButton = document.createElement("i");
+  shareButton.className = "gif-share-button";
+  shareButton.setAttribute("data-feather", "share-2");
+  const favButton = document.createElement("i");
+  favButton.className = `gif-fav-button ${
+    favoriteManager.isFavorite(giphyRow.id) ? "fav" : ""
+  }`;
+  favButton.setAttribute("data-feather", "heart");
+
+  gifButtonsWrapper.appendChild(shareButton);
+  gifButtonsWrapper.appendChild(favButton);
+  newGifWrapper.appendChild(newGif);
+  newGifWrapper.appendChild(gifButtonsWrapper);
+  gifsWrapper.appendChild(newGifWrapper);
 };

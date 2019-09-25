@@ -39,7 +39,7 @@ const showNoGifsWrapper = noGifsWrapper => {
 
 /* ======== GLOBALS ======= */
 
-const favoriteGifs = localStorage.getItem(LOCAL_STORAGE_FAVORITES_KEY);
+const favoriteManager = new FavoriteManager();
 
 // usefull not to fetch Giphy API on each keystoke
 const searchbarDebounce = new Debouncer(
@@ -56,7 +56,38 @@ const searchbarDebounce = new Debouncer(
             document.getElementById("gifs-count").innerText = data.length;
 
             for (let row of data) {
-              addGifToDivFromGiphyRow(gifsWrapper, row);
+              addGifToDivFromGiphyRow(gifsWrapper, row, favoriteManager);
+            }
+            // replace all the tags with 'data-feather' by corresponding svg
+            feather.replace();
+
+            /* forced to bind buttons eventListeners here and not during gifs insertion
+             because feather.replace() doesn't keeps attached eventListeners during <i /> 
+             tags replacement. */
+            for (let gif of gifsWrapper.getElementsByClassName("gif")) {
+              gif
+                .querySelector(".gif-share-button")
+                .addEventListener("click", _ => () =>
+                  console.log("Not implemented.")
+                );
+
+              gif
+                .querySelector(".gif-fav-button")
+                .addEventListener("click", event => {
+                  // should be a better way to pass a usable "row" to favoriteManager.add
+                  if (favoriteManager.isFavorite(gif.id)) {
+                    favoriteManager.remove(gif.id);
+                    event.target.closest("svg").classList.remove("fav");
+                  } else {
+                    favoriteManager.add({
+                      id: gif.id,
+                      images: {
+                        fixed_width: { url: gif.querySelector("img").src }
+                      }
+                    });
+                    event.target.closest("svg").classList.add("fav");
+                  }
+                });
             }
           } else {
             hideGifsWrapper(gifsWrapper);
@@ -141,8 +172,6 @@ const displayFavorited = (homeNavItem, favoritedNavItem) => {
   setHrefToFavorited();
   homeNavItem.classList && homeNavItem.classList.remove("active");
   favoritedNavItem.classList.add("active");
-
-  console.log(favoriteGifs);
 };
 
 /* ======== ON PAGE LOADED ======= */
