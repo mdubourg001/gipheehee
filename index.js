@@ -175,7 +175,7 @@ const displayHome = (
   homeNavItem.classList.add("active");
   favoritedNavItem.classList && favoritedNavItem.classList.remove("active");
 
-  const initialQParam = getHrefParams().get("q");
+  const initialQParam = parseSearchParams(window.location.href).get("q");
   if (initialQParam !== null) {
     searchbarInput.dispatchEvent(new Event("input"));
   } else {
@@ -246,14 +246,23 @@ window.onload = () => {
 
   alertManager = new AlertManager(alertsWrapper);
 
-  // display home by default
-  displayHome(
-    homeNavItem,
-    favoritedNavItem,
-    searchbarInput,
-    gifsWrapper,
-    noGifsWrapper
-  );
+  if (isHrefHome()) {
+    displayHome(
+      homeNavItem,
+      favoritedNavItem,
+      searchbarInput,
+      gifsWrapper,
+      noGifsWrapper
+    );
+  } else {
+    displayFavorited(
+      homeNavItem,
+      favoritedNavItem,
+      gifsWrapper,
+      noGifsWrapper,
+      favoriteManager
+    );
+  }
 
   /* when on Favorited tab, allows us to automatically refresh
      displayed GIFs when "un-favoriting" some GIF */
@@ -341,9 +350,12 @@ window.onload = () => {
 
   /* ======== HANDLING INITIAL Q PARAM ======== */
 
-  const initialQParam = getHrefParams().get("q");
+  const initialQParam = parseSearchParams(window.location.href).get("q");
   if (initialQParam !== null) {
     searchbarInput.value = initialQParam;
-    searchbarInput.dispatchEvent(new Event("input"));
+    if (isHrefHome()) {
+      searchbarInput.dispatchEvent(new Event("input"));
+    }
+    showSearchbarCross(searchbarCross);
   }
 };

@@ -150,51 +150,59 @@ class FavoriteManager {
   }
 }
 
+const parseSearchParams = href => {
+  const split = href.split("?");
+  return split.length > 1
+    ? new URLSearchParams(split[1])
+    : new URLSearchParams();
+};
+
 const isHrefHome = () => {
   const href = new URL(window.location.href);
-  return href.pathname === "/";
+  return !href.href.includes("/favorited");
 };
 
 const setHrefToHome = () => {
-  const newHref = new URL(window.location.href);
-
-  if (newHref.pathname !== "/") {
-    newHref.pathname = "/";
-    newHref.searchParams.forEach(p => newHref.searchParams.delete(p));
+  if (!isHrefHome()) {
+    const searchParams = parseSearchParams(window.location.href);
+    const newHref = new URL(window.location.href);
+    newHref.href = newHref.origin;
+    newHref.searchParams.set("q", searchParams.get("q"));
+    window.history.replaceState({}, null, newHref.href);
   }
-
-  window.history.replaceState({}, null, newHref.href);
 };
 
 const setHrefToFavorited = () => {
-  const newHref = new URL(window.location.href);
-
-  if (newHref.pathname !== "/favorited") {
+  if (isHrefHome()) {
+    const newHref = new URL(window.location.href);
     newHref.pathname = "/favorited";
-    newHref.searchParams.forEach(p => newHref.searchParams.delete(p));
+    // https://stackoverflow.com/a/5497365
+    window.history.replaceState(
+      {},
+      null,
+      newHref.href.replace(/\/([^\/]*)$/, "/#/" + "$1")
+    );
   }
-
-  window.history.replaceState({}, null, newHref.href);
 };
 
 const updateHrefQValue = qValue => {
   const newHref = new URL(window.location.href);
 
-  // https://stackoverflow.com/questions/486896/adding-a-parameter-to-the-url-with-javascript
-  if (qValue) {
-    newHref.searchParams.set("q", qValue);
-    document.title = `Gipheehee - ${qValue} GIFs`;
+  if (isHrefHome()) {
+    // https://stackoverflow.com/questions/486896/adding-a-parameter-to-the-url-with-javascript
+    if (qValue) {
+      newHref.searchParams.set("q", qValue);
+      document.title = `Gipheehee - ${qValue} GIFs`;
+    } else {
+      newHref.searchParams.delete("q");
+      document.title = `Gipheehee`;
+    }
   } else {
-    newHref.searchParams.delete("q");
-    document.title = `Gipheehee`;
+    newHref.hash = "#/favorited";
   }
 
   window.history.replaceState({}, null, newHref.href);
 };
-
-// returns a URLSearchParams object
-// (https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)
-const getHrefParams = () => new URL(window.location.href).searchParams;
 
 const addGifToDivFromGiphyRow = (gifsWrapper, gifObject, favoriteManager) => {
   const newGifWrapper = document.createElement("div");
