@@ -316,6 +316,19 @@ window.onload = () => {
     );
   });
 
+  // allows user to skip the timeout on input field on Enter press
+  searchbarInput.addEventListener("keyup", event => {
+    if (event.key === "Enter" && searchbarInput.value.length > 0) {
+      searchbarDebounce.directCall(
+        event,
+        gifsWrapper,
+        noGifsWrapper,
+        searchbarMGlass,
+        searchbarLoader
+      );
+    }
+  });
+
   searchbarCross.addEventListener("click", event =>
     handleSearchbarCrossClick(
       event,

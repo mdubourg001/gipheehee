@@ -105,6 +105,12 @@ class Debouncer {
       this.callback(...args);
     }, this.delay);
   }
+
+  directCall(...args) {
+    clearTimeout(this._timeout);
+    this._timeout = null;
+    this.callback(...args);
+  }
 }
 
 class FavoriteManager {
