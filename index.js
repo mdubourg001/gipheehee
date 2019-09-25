@@ -89,7 +89,17 @@ const searchbarDebounce = new Debouncer(
           hideSearchbarLoader(searchbarMGlass, searchbarLoader);
         });
       } else {
-        // TODO HANDLE GIPHY ERRORS
+        response
+          .json()
+          .then(({ message }) =>
+            alertManager.push(
+              new Alert(
+                `☠️ &nbsp; Oops! Something wrong happened. (${response.status})`,
+                AlertType.ERROR
+              )
+            )
+          );
+        hideSearchbarLoader(searchbarMGlass, searchbarLoader);
       }
     });
   },

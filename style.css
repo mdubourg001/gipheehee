@@ -157,6 +157,7 @@ nav .nav-item.active span {
 }
 
 #alerts-wrapper .alert.alert-error {
+  background-color: rgba(201, 55, 49, 0.75);
 }
 
 /* ======= HEADER ======= */
