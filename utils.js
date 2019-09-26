@@ -19,9 +19,10 @@ const ALERTS_TIMEOUT_DELAY = 5000;
 
 // class used only to normalize the format of GIFs stored into localStorage
 class Gif {
-  constructor(id, url) {
+  constructor(id, url, embed) {
     this.id = id;
     this.url = url;
+    this.embed = embed;
   }
 }
 
@@ -132,7 +133,8 @@ class FavoriteManager {
   add(gifObject) {
     this._favorites.push({
       id: gifObject.id,
-      url: gifObject.url
+      url: gifObject.url,
+      embed: gifObject.embed
     });
     localStorage.setItem(
       LOCAL_STORAGE_FAVORITES_KEY,
@@ -208,6 +210,7 @@ const addGifToDivFromGiphyRow = (gifsWrapper, gifObject, favoriteManager) => {
   const newGifWrapper = document.createElement("div");
   newGifWrapper.className = "gif";
   newGifWrapper.id = gifObject.id;
+  newGifWrapper.setAttribute("embed-url", gifObject.embed);
   const newGif = document.createElement("img");
   newGif.src = gifObject.url;
   newGif.alt = gifObject.title;
@@ -258,7 +261,7 @@ const bindEventListenersToGifButtons = (
     gif.querySelector(".gif-share-button").addEventListener("click", _ => {
       // might not work on some browsers (IE, Edge), did not found any polyfills 🤷
       // https://caniuse.com/#feat=mdn-api_clipboard
-      navigator.clipboard.writeText(gif.querySelector("img").src).then(() => {
+      navigator.clipboard.writeText(gif.getAttribute("embed-url")).then(() => {
         alertManager.push(
           new Alert("📃 &nbsp; GIF URL copied to clipboard!", AlertType.INFO)
         );
@@ -273,7 +276,13 @@ const bindEventListenersToGifButtons = (
           new Alert("😞 &nbsp; GIF removed from favorites.", AlertType.INFO)
         );
       } else {
-        favoriteManager.add(new Gif(gif.id, gif.querySelector("img").src));
+        favoriteManager.add(
+          new Gif(
+            gif.id,
+            gif.querySelector("img").src,
+            gif.getAttribute("embed-url")
+          )
+        );
         event.target.closest("svg").classList.add("fav");
         alertManager.push(
           new Alert("🎉 &nbsp; GIF added to favorites!", AlertType.INFO)

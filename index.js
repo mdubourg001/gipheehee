@@ -79,7 +79,8 @@ const searchbarDebounce = new Debouncer(
                 gifsWrapper,
                 new Gif(
                   giphyGifObject.id,
-                  giphyGifObject.images.fixed_width.url
+                  giphyGifObject.images.fixed_width.url,
+                  giphyGifObject.embed_url
                 ),
                 favoriteManager
               );
