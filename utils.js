@@ -231,6 +231,24 @@ const addGifToDivFromGiphyRow = (gifsWrapper, gifObject, favoriteManager) => {
   gifsWrapper.appendChild(newGifWrapper);
 };
 
+const addLoadMoreButton = (gifsWrapper, pagination, onClickCallback) => {
+  if (pagination.offset + pagination.count >= pagination.total_count) return;
+
+  const loadMoreWrapper = document.createElement("div");
+  loadMoreWrapper.id = "load-more-wrapper";
+  loadMoreWrapper.className = "w-full flex justify-center";
+  const loadMoreButton = document.createElement("button");
+  loadMoreButton.id = "load-more-button";
+  const loadMoreText = document.createElement("span");
+  loadMoreText.innerText = "Load more";
+
+  loadMoreButton.addEventListener("click", onClickCallback);
+
+  loadMoreButton.appendChild(loadMoreText);
+  loadMoreWrapper.appendChild(loadMoreButton);
+  gifsWrapper.appendChild(loadMoreWrapper);
+};
+
 const bindEventListenersToGifButtons = (
   gifsWrapper,
   favoriteManager,

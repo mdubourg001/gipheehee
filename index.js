@@ -23,9 +23,15 @@ const showGifsWrapper = gifsWrapper => {
   gifsWrapper.classList.remove("hidden");
   gifsWrapper.classList.add("flex");
 };
+const hideLoadMoreButton = () => {
+  const loadMoreWrapper = document.getElementById("load-more-wrapper");
+  if (loadMoreWrapper) loadMoreWrapper.parentNode.removeChild(loadMoreWrapper);
+};
 const emptyGifsWrapper = gifsWrapper => {
   const gifs = document.getElementsByClassName("gif");
   while (gifs[0]) gifsWrapper.removeChild(gifs[0]);
+
+  hideLoadMoreButton();
 };
 
 const hideNoGifsWrapper = noGifsWrapper => {
@@ -45,17 +51,28 @@ let alertManager = null;
 
 // usefull not to fetch Giphy API on each keystoke
 const searchbarDebounce = new Debouncer(
-  (event, gifsWrapper, noGifsWrapper, searchbarMGlass, searchbarLoader) => {
+  (
+    event,
+    gifsWrapper,
+    noGifsWrapper,
+    searchbarMGlass,
+    searchbarLoader,
+    offset = 0
+  ) => {
     fetch(
-      `${GIPHY_SEARCH_API_ENDPOINT}?api_key=${GIPHY_DEV_API_KEY}&q=${event.target.value}`
+      `${GIPHY_SEARCH_API_ENDPOINT}?api_key=${GIPHY_DEV_API_KEY}&q=${event.target.value}&offset=${offset}`
     ).then(response => {
       if (response.ok) {
-        response.json().then(({ data }) => {
+        response.json().then(({ data, pagination }) => {
           if (data.length > 0) {
             hideNoGifsWrapper(noGifsWrapper);
             showGifsWrapper(gifsWrapper);
-            emptyGifsWrapper(gifsWrapper);
-            document.getElementById("gifs-count").innerText = data.length;
+            if (offset === 0) emptyGifsWrapper(gifsWrapper);
+            document.getElementById(
+              "gifs-count"
+            ).innerText = `${pagination.offset + pagination.count} out of ${
+              pagination.total_count
+            }`;
 
             for (let giphyGifObject of data) {
               addGifToDivFromGiphyRow(
@@ -69,7 +86,6 @@ const searchbarDebounce = new Debouncer(
             }
             // replace all the tags with 'data-feather' by corresponding svg
             feather.replace();
-
             /* forced to bind buttons eventListeners here and not during gifs insertion
              because feather.replace() doesn't keeps attached eventListeners during <i /> 
              tags replacement. */
@@ -78,6 +94,18 @@ const searchbarDebounce = new Debouncer(
               favoriteManager,
               alertManager
             );
+
+            addLoadMoreButton(gifsWrapper, pagination, () => {
+              hideLoadMoreButton();
+              searchbarDebounce.directCall(
+                event,
+                gifsWrapper,
+                noGifsWrapper,
+                searchbarMGlass,
+                searchbarLoader,
+                pagination.offset + pagination.count
+              );
+            });
           } else {
             hideGifsWrapper(gifsWrapper);
             noGifsWrapper.querySelector(
