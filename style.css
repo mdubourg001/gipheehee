@@ -137,6 +137,14 @@ nav .nav-item.active span {
   z-index: 10;
 }
 
+@media (max-width: 660px) {
+  #alerts-wrapper {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+  }
+}
+
 #alerts-wrapper .alert {
   justify-content: flex-end;
   padding: 10px 20px;
