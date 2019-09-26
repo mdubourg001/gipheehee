@@ -15,7 +15,7 @@ const LOCAL_STORAGE_FAVORITES_KEY = "FAVORITE_GIFS";
 let ALERTS_COUNT = 0;
 const ALERTS_TIMEOUT_DELAY = 5000;
 
-/* ======== UTILS ======= */
+/* ======== OBJECTS CLASSES & HELPERS ======= */
 
 // class used only to normalize the format of GIFs stored into localStorage
 class Gif {
@@ -152,6 +152,8 @@ class FavoriteManager {
   }
 }
 
+/* ======== UTILS ======= */
+
 const parseSearchParams = href => {
   const split = href.split("?");
   return split.length > 1
@@ -161,7 +163,7 @@ const parseSearchParams = href => {
 
 const isHrefHome = () => {
   const href = new URL(window.location.href);
-  return !href.href.includes("/favorited");
+  return !href.hash;
 };
 
 const setHrefToHome = () => {
@@ -290,4 +292,49 @@ const bindEventListenersToGifButtons = (
       }
     });
   }
+};
+
+/* ======== GLOBALS ======= */
+
+const hideSearchbarLoader = (searchbarMGlass, searchbarLoader) => {
+  searchbarMGlass.classList.remove("hidden");
+  searchbarLoader.classList.add("hidden");
+};
+const showSearchbarLoader = (searchbarMGlass, searchbarLoader) => {
+  searchbarMGlass.classList.add("hidden");
+  searchbarLoader.classList.remove("hidden");
+};
+const hideSearchbarCross = searchbarCross => {
+  searchbarCross.classList.add("hidden");
+};
+const showSearchbarCross = searchbarCross => {
+  searchbarCross.classList.remove("hidden");
+};
+
+const hideGifsWrapper = gifsWrapper => {
+  gifsWrapper.classList.remove("flex");
+  gifsWrapper.classList.add("hidden");
+};
+const showGifsWrapper = gifsWrapper => {
+  gifsWrapper.classList.remove("hidden");
+  gifsWrapper.classList.add("flex");
+};
+const hideLoadMoreButton = () => {
+  const loadMoreWrapper = document.getElementById("load-more-wrapper");
+  if (loadMoreWrapper) loadMoreWrapper.parentNode.removeChild(loadMoreWrapper);
+};
+const emptyGifsWrapper = gifsWrapper => {
+  const gifs = document.getElementsByClassName("gif");
+  while (gifs[0]) gifsWrapper.removeChild(gifs[0]);
+
+  hideLoadMoreButton();
+};
+
+const hideNoGifsWrapper = noGifsWrapper => {
+  noGifsWrapper.classList.remove("flex");
+  noGifsWrapper.classList.add("hidden");
+};
+const showNoGifsWrapper = noGifsWrapper => {
+  noGifsWrapper.classList.remove("hidden");
+  noGifsWrapper.classList.add("flex");
 };
