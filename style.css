@@ -184,6 +184,20 @@ header {
   max-width: 33.3%;
 }
 
+@media (max-width: 768px) {
+  #searchbar-wrapper {
+    width: 90%;
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 1024px) {
+  #searchbar-wrapper {
+    width: 65%;
+    max-width: 65%;
+  }
+}
+
 #searchbar-wrapper svg {
   stroke: darkslategray;
   margin: 0 6px;
@@ -226,6 +240,10 @@ header {
 #no-gifs-wrapper {
   color: darkgray;
   padding: 10vh 10px;
+}
+
+#no-gifs-message {
+  text-align: center;
 }
 
 /* ======= GIFS-WRAPPER ======= */
