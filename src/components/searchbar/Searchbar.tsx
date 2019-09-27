@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useEffect } from "react";
 import {
   Loader as LoaderIcon,
   Search as SearchIcon,
@@ -51,6 +51,12 @@ const Searchbar: React.FC<SearchbarProps> = ({
   // maybe a reducer is a bit 'too much' here, but did it for practicing 👨‍🎓
   const [state, dispatch] = useReducer(searchbarReducer, { inputValue: "" });
 
+  // setting the focus on the searchbar on app mount
+  useEffect(() => {
+    const searchbarHTMLElement = document.getElementById("searchbar");
+    if (searchbarHTMLElement) searchbarHTMLElement.focus();
+  }, []);
+
   return (
     <div className="w-full flex items-center rounded bg-white px-5 py-2">
       {isLoading ? (
@@ -65,8 +71,10 @@ const Searchbar: React.FC<SearchbarProps> = ({
 
       <input
         type="text"
+        id="searchbar"
         className="w-full mx-2 focus:outline-none"
         value={state.inputValue}
+        placeholder="ex: Jacques Chirac..."
         onChange={(event: React.FormEvent<HTMLInputElement>) => {
           onInputFieldChange((event.target as HTMLInputElement).value);
           dispatch({

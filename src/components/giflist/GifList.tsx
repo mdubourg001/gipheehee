@@ -9,12 +9,14 @@ type GifImageProps = {
   gif: GIF;
   isFavorite: boolean;
   toggleFavorite: (gif: GIF) => void;
+  copyToClipboard: (gif: GIF) => void;
 };
 
 const GifImage: React.FC<GifImageProps> = ({
   gif,
   isFavorite,
-  toggleFavorite
+  toggleFavorite,
+  copyToClipboard
 }) => {
   return (
     <div
@@ -29,7 +31,9 @@ const GifImage: React.FC<GifImageProps> = ({
         height={gif.height}
       ></img>
       <div className="gif-cloak rounded-sm w-full h-full absolute top-0 left-0 flex justify-center items-center">
-        <LinkIcon size={40} color="white"></LinkIcon>
+        <span onClick={() => copyToClipboard(gif)}>
+          <LinkIcon size={40} color="white"></LinkIcon>
+        </span>
         <span onClick={() => toggleFavorite(gif)}>
           <HeartIcon size={40} color="#E44854"></HeartIcon>
         </span>
@@ -44,12 +48,14 @@ type GifListProps = {
   gifs: Array<GIF>;
   favorites: Array<GIF>;
   toggleFavorite: (gif: GIF) => void;
+  copyToClipboard: (gif: GIF) => void;
 };
 
 const GifList: React.FC<GifListProps> = ({
   gifs,
   favorites,
-  toggleFavorite
+  toggleFavorite,
+  copyToClipboard
 }) => {
   return (
     <section className="flex flex-wrap overflow-y-scroll max-h-full">
@@ -59,6 +65,7 @@ const GifList: React.FC<GifListProps> = ({
           gif={gif}
           isFavorite={favorites.some(f => f.id === gif.id)}
           toggleFavorite={toggleFavorite}
+          copyToClipboard={copyToClipboard}
         ></GifImage>
       ))}
     </section>

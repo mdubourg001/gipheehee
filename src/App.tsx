@@ -12,7 +12,13 @@ import {
   GIPHY_SEARCH_API_ENDPOINT,
   GIPHY_DEV_API_KEY
 } from "./utils";
-import { spawn } from "child_process";
+
+/* Not implemented yet:
+  - Keeping the 'q' param on refresh
+  - Mobile support
+  - Toast system (alerts on GIF copy / fav)
+  - 'Load more' button
+*/
 
 const App: React.FC = () => {
   const [route, setRoute] = useState<Route>(getActualRoute());
@@ -108,6 +114,7 @@ const App: React.FC = () => {
         <GifList
           gifs={route === ValidRoutes.Home ? gifs : favorites}
           favorites={favorites}
+          // might memoise those two callbacks for performance (?)
           toggleFavorite={(gif: GIF) => {
             if (favorites.some(f => f.id === gif.id)) {
               setFavorites(favorites.filter(f => f.id !== gif.id));
@@ -115,19 +122,27 @@ const App: React.FC = () => {
               setFavorites([...favorites, gif]);
             }
           }}
+          copyToClipboard={(gif: GIF) => {
+            // might not work on some browsers (IE, Edge), did not found any polyfills 🤷
+            // https://caniuse.com/#feat=mdn-api_clipboard
+            navigator.clipboard.writeText(gif.embed_url).then(() => {});
+          }}
         ></GifList>
         {gifs.length === 0 && route === ValidRoutes.Home && (
           <b className="text-white pb-10">
-            {route === ValidRoutes.Home && (
+            {!debouncedSearchValue && (
               <span>👈 &nbsp; Use the searchbar to search for some GIFs.</span>
+            )}
+            {debouncedSearchValue && (
+              <span>
+                😭 &nbsp; No GIFs found for '{debouncedSearchValue}...'
+              </span>
             )}
           </b>
         )}
         {favorites.length === 0 && route === ValidRoutes.Favorited && (
           <b className="text-white pb-10">
-            {route === ValidRoutes.Favorited && (
-              <span>🤷 &nbsp; You marked no GIFs as favorites yet.</span>
-            )}
+            <span>🤷 &nbsp; You marked no GIFs as favorites yet.</span>
           </b>
         )}
       </div>
