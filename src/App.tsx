@@ -5,6 +5,8 @@ import Header from "./components/header/Header";
 import GifList from "./components/giflist/GifList";
 import { GIF } from "./types";
 import useDebounce from "./hooks/useDebounce";
+import { Route, getActualRoute } from "./routing";
+import { updateHrefQValue } from "./utils";
 import {
   SEARCHBAR_DEBOUNCE_DELAY,
   GIPHY_SEARCH_API_ENDPOINT,
@@ -12,6 +14,7 @@ import {
 } from "./utils";
 
 const App: React.FC = () => {
+  const [route, setRoute] = useState<Route>(getActualRoute());
   const [searchValue, setSearchValue] = useState<string>("");
   const [gifs, setGifs] = useState<Array<GIF>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -21,6 +24,7 @@ const App: React.FC = () => {
     SEARCHBAR_DEBOUNCE_DELAY
   );
 
+  // fetching gifs on searchbar value change
   useEffect(() => {
     if (debouncedSearchValue) {
       fetch(
@@ -40,30 +44,50 @@ const App: React.FC = () => {
               });
             }
             setGifs(newGifs);
-            setIsLoading(false);
           });
         }
       });
     } else {
       setGifs([]);
     }
+
+    setIsLoading(false);
   }, [debouncedSearchValue]);
 
-  return (
-    <div className="App">
-      <Header
-        isLoading={isLoading}
-        onInputFieldChange={(value, skipDebounce) => {
-          if (!skipDebounce) {
-            setIsLoading(true);
-            setSearchValue(value);
-          }
-          // skipping debounce by direct updating debounce value (without timeout)
-          else setDebouncedSearchValue(value);
-        }}
-      ></Header>
+  useEffect(() => updateHrefQValue(searchValue), [searchValue]);
 
-      <GifList gifs={gifs}></GifList>
+  // updating browser's href on route change
+  useEffect(() => {
+    window.history.replaceState(undefined, document.title, route.toString());
+  }, [route]);
+
+  return (
+    <div className="App h-full flex overflow-hidden">
+      <div
+        id="header-wrapper"
+        className="w-1/2 h-full flex flex-col justify-center shadow-lg"
+      >
+        <Header
+          isLoading={isLoading}
+          onInputFieldChange={(value, skipDebounce) => {
+            if (!skipDebounce) {
+              setIsLoading(true);
+              setSearchValue(value);
+            }
+            // skipping debounce by direct updating debounce value (without timeout)
+            else {
+              setSearchValue(value);
+              setDebouncedSearchValue(value);
+            }
+          }}
+          route={route}
+          setRoute={setRoute}
+        ></Header>
+      </div>
+
+      <div className="w-1/2 bg-black">
+        <GifList gifs={gifs}></GifList>
+      </div>
     </div>
   );
 };

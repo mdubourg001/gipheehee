@@ -52,7 +52,7 @@ const Searchbar: React.FC<SearchbarProps> = ({
   const [state, dispatch] = useReducer(searchbarReducer, { inputValue: "" });
 
   return (
-    <div className="w-full flex items-center">
+    <div className="w-full flex items-center rounded bg-white px-5 py-2">
       {isLoading ? (
         <LoaderIcon
           className="loader-icon"
@@ -65,7 +65,7 @@ const Searchbar: React.FC<SearchbarProps> = ({
 
       <input
         type="text"
-        className="w-full"
+        className="w-full mx-2 focus:outline-none"
         value={state.inputValue}
         onChange={(event: React.FormEvent<HTMLInputElement>) => {
           onInputFieldChange((event.target as HTMLInputElement).value);

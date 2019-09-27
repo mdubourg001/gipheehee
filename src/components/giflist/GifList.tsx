@@ -30,7 +30,7 @@ type GifListProps = {
 
 const GifList: React.FC<GifListProps> = ({ gifs }) => {
   return (
-    <section className="flex items-center flex-wrap">
+    <section className="flex items-center flex-wrap overflow-y-scroll max-h-full">
       {gifs.map(gif => (
         <GifImage key={gif.id} gif={gif}></GifImage>
       ))}
