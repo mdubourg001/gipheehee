@@ -94,6 +94,8 @@ const Searchbar: React.FC<SearchbarProps> = ({
         onClick={_ => {
           onInputFieldChange("", true);
           dispatch({ type: SearchbarActionType.INPUT_CLEAR });
+          const searchbarHTMLElement = document.getElementById("searchbar");
+          if (searchbarHTMLElement) searchbarHTMLElement.focus();
         }}
       ></XIcon>
     </div>

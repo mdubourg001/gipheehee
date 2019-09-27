@@ -9,13 +9,16 @@ type HeaderProps = {
   onInputFieldChange: InputChangeCallback;
   route: Route;
   setRoute: (route: Route) => void;
+  toast: string;
 };
 
+// called header but isn't really a header in this layout
 const Header: React.FC<HeaderProps> = ({
   isLoading,
   onInputFieldChange,
   route,
-  setRoute
+  setRoute,
+  toast
 }) => {
   return (
     <header className="container mx-auto flex flex-col items-center m-2 mb-20">
@@ -48,6 +51,14 @@ const Header: React.FC<HeaderProps> = ({
           </button>
         </div>
       </div>
+
+      {toast && (
+        <div className="absolute bottom-0 w-full flex justify-center p-20">
+          <div className="bg-purple-500 rounded-full shadow-lg px-10 py-3">
+            <span className="text-white">{toast}</span>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

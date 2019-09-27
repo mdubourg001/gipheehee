@@ -7,6 +7,8 @@ export const SEARCHBAR_DEBOUNCE_DELAY = 1000;
 
 export const LOCAL_STORAGE_FAVORITES_KEY = "FAVORITE_GIFS";
 
+export const ALERTS_TIMEOUT_DELAY = 5000;
+
 /* ========= UTILS ======== */
 
 export const updateHrefQValue = (qValue: string): void => {

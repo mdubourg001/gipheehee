@@ -6,7 +6,11 @@ import GifList from "./components/giflist/GifList";
 import { GIF } from "./types";
 import useDebounce from "./hooks/useDebounce";
 import { Route, getActualRoute, ValidRoutes } from "./routing";
-import { updateHrefQValue, LOCAL_STORAGE_FAVORITES_KEY } from "./utils";
+import {
+  updateHrefQValue,
+  LOCAL_STORAGE_FAVORITES_KEY,
+  ALERTS_TIMEOUT_DELAY
+} from "./utils";
 import {
   SEARCHBAR_DEBOUNCE_DELAY,
   GIPHY_SEARCH_API_ENDPOINT,
@@ -18,6 +22,7 @@ import {
   - Mobile support
   - Toast system (alerts on GIF copy / fav)
   - 'Load more' button
+  - Hide 'X' icon when searchbar is empty
 */
 
 const App: React.FC = () => {
@@ -26,6 +31,7 @@ const App: React.FC = () => {
   const [gifs, setGifs] = useState<Array<GIF>>([]);
   const [favorites, setFavorites] = useState<Array<GIF>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [toast, setToast] = useState<string>("");
 
   const [debouncedSearchValue, setDebouncedSearchValue] = useDebounce(
     searchValue,
@@ -75,6 +81,7 @@ const App: React.FC = () => {
 
   // fetching gifs on searchbar value change
   useEffect(() => {
+    if (route !== ValidRoutes.Home) setRoute(ValidRoutes.Home);
     fetchAndUpdateGifs();
     setIsLoading(false);
   }, [debouncedSearchValue]);
@@ -85,6 +92,13 @@ const App: React.FC = () => {
   useEffect(() => {
     window.history.replaceState(undefined, document.title, route.toString());
   }, [route]);
+
+  const displayToast = (content: string) => {
+    setToast(content);
+    // will create race conditions :/
+    // fix it: by setting up a more complex toast queue system (with ids)
+    setTimeout(() => setToast(""), ALERTS_TIMEOUT_DELAY);
+  };
 
   return (
     <div className="App h-full flex overflow-hidden">
@@ -107,6 +121,7 @@ const App: React.FC = () => {
           }}
           route={route}
           setRoute={setRoute}
+          toast={toast}
         ></Header>
       </div>
 
@@ -118,14 +133,18 @@ const App: React.FC = () => {
           toggleFavorite={(gif: GIF) => {
             if (favorites.some(f => f.id === gif.id)) {
               setFavorites(favorites.filter(f => f.id !== gif.id));
+              displayToast("😞 - GIF removed from favorites.");
             } else {
               setFavorites([...favorites, gif]);
+              displayToast("🎉 - GIF added to favorites!");
             }
           }}
           copyToClipboard={(gif: GIF) => {
             // might not work on some browsers (IE, Edge), did not found any polyfills 🤷
             // https://caniuse.com/#feat=mdn-api_clipboard
-            navigator.clipboard.writeText(gif.embed_url).then(() => {});
+            navigator.clipboard.writeText(gif.embed_url).then(() => {
+              displayToast("📃 - GIF URL copied to clipboard!");
+            });
           }}
         ></GifList>
         {gifs.length === 0 && route === ValidRoutes.Home && (
