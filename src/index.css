@@ -1,3 +1,12 @@
+html {
+  box-sizing: border-box;
+}
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
 body,
 html,
 #root {
@@ -17,7 +26,8 @@ html,
 
 #title {
   font-family: "Lobster", cursive;
-  transform: rotateZ(-2deg);
+  transform: rotateZ(-4deg);
+  text-decoration: underline;
 }
 
 @keyframes rotation {
@@ -47,4 +57,45 @@ button {
 
 button:active {
   transform: scale(1.1, 1.1);
+}
+
+.gif {
+  transition: transform 0.2s ease;
+  flex: 1 1 auto;
+}
+
+.gif:hover {
+  transform: scale(1.1, 1.1);
+}
+
+.gif-cloak {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.gif-cloak svg {
+  cursor: pointer;
+  margin: 0 10px;
+  transform: transform 0.2s ease;
+}
+
+.gif-cloak svg:active {
+  transform: scale(1.1, 1.1);
+}
+
+.gif:not(.favorite) .gif-cloak svg[stroke="#E44854"]:hover {
+  fill: #e44854;
+}
+
+.gif.favorite .gif-cloak svg[stroke="#E44854"] {
+  fill: #e44854;
+}
+
+.gif-cloak.favorite svg[stroke="#E44854"]:hover {
+  fill: transparent;
+}
+
+.gif-cloak:hover {
+  opacity: 1;
 }

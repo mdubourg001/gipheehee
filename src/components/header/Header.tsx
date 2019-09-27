@@ -37,14 +37,14 @@ const Header: React.FC<HeaderProps> = ({
               ValidRoutes.Home && "bg-purple-700 shadow-lg"} `}
             onClick={() => setRoute(ValidRoutes.Home)}
           >
-            Home
+            Search GIFs
           </button>
           <button
             className={`focus:outline-none rounded text-white px-4 py-2 mr-4 ${route ===
               ValidRoutes.Favorited && "bg-purple-700 shadow-lg"} `}
             onClick={() => setRoute(ValidRoutes.Favorited)}
           >
-            Favorited
+            Favorites
           </button>
         </div>
       </div>

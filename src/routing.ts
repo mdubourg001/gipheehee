@@ -1,6 +1,6 @@
 export enum ValidRoutes {
-  Home = "home",
-  Favorited = "favorited"
+  Home = "/",
+  Favorited = "/favorited"
 }
 
 export type Route = ValidRoutes.Home | ValidRoutes.Favorited;

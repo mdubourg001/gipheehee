@@ -1,4 +1,5 @@
 import React from "react";
+import { Heart as HeartIcon, Link as LinkIcon } from "react-feather";
 
 import { GIF } from "../../types";
 
@@ -6,11 +7,20 @@ import { GIF } from "../../types";
 
 type GifImageProps = {
   gif: GIF;
+  isFavorite: boolean;
+  toggleFavorite: (gif: GIF) => void;
 };
 
-const GifImage: React.FC<GifImageProps> = ({ gif }) => {
+const GifImage: React.FC<GifImageProps> = ({
+  gif,
+  isFavorite,
+  toggleFavorite
+}) => {
   return (
-    <div className="border border-black shadow rounded-sm m-2">
+    <div
+      className={`gif relative flex justify-center shadow-lg rounded-sm m-3 ${isFavorite &&
+        "favorite"}`}
+    >
       <img
         className="rounded-sm"
         src={gif.url}
@@ -18,6 +28,12 @@ const GifImage: React.FC<GifImageProps> = ({ gif }) => {
         width={gif.width}
         height={gif.height}
       ></img>
+      <div className="gif-cloak rounded-sm w-full h-full absolute top-0 left-0 flex justify-center items-center">
+        <LinkIcon size={40} color="white"></LinkIcon>
+        <span onClick={() => toggleFavorite(gif)}>
+          <HeartIcon size={40} color="#E44854"></HeartIcon>
+        </span>
+      </div>
     </div>
   );
 };
@@ -26,13 +42,24 @@ const GifImage: React.FC<GifImageProps> = ({ gif }) => {
 
 type GifListProps = {
   gifs: Array<GIF>;
+  favorites: Array<GIF>;
+  toggleFavorite: (gif: GIF) => void;
 };
 
-const GifList: React.FC<GifListProps> = ({ gifs }) => {
+const GifList: React.FC<GifListProps> = ({
+  gifs,
+  favorites,
+  toggleFavorite
+}) => {
   return (
-    <section className="flex items-center flex-wrap overflow-y-scroll max-h-full">
+    <section className="flex flex-wrap overflow-y-scroll max-h-full">
       {gifs.map(gif => (
-        <GifImage key={gif.id} gif={gif}></GifImage>
+        <GifImage
+          key={gif.id}
+          gif={gif}
+          isFavorite={favorites.some(f => f.id === gif.id)}
+          toggleFavorite={toggleFavorite}
+        ></GifImage>
       ))}
     </section>
   );
